@@ -1,22 +1,29 @@
 # Hockey RAXOI - Seguintes partidos
 
-This is a small mash up that collects timetables of matches of HC Raxoi teams.
+This is a small mash-up that collects timetables of matches for HC Raxoi teams.
 
 Don't you know HC Raxoi??
 
 Then visit its website and social media:
 
-https://raxoi.com/
-https://www.instagram.com/hcraxoi/
+- [HC Raxoi Website](https://raxoi.com/)
+- [HC Raxoi Instagram](https://www.instagram.com/hcraxoi/)
 
+## Working Version
 
-## Test it locally
+You can view a working version of the project [here](https://bit.ly/HCRaxoi).
 
-python -m http.server
+## Test it Locally
 
-Try:
-http://localhost/app.html
+To test the project locally, you can use Python's built-in HTTP server:
 
+1. **Start the server**:
+   ```bash
+   python -m http.server
+   ```
+
+2. **Access the application**:
+   Open your browser and go to `http://localhost:8000/app.html`
 
 ## Docker Instructions
 
