@@ -153,6 +153,9 @@ function renderMatches(matches) {
         table.appendChild(tbody);
         container.appendChild(table);
     }
+    // get only tables inside result
+    const tables = document.querySelectorAll('table.matches-table');
+    tables.forEach(table => add_gcal_button(table));
 }
 
 function groupMatchesByLeague(matches) {
