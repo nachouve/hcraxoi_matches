@@ -1,0 +1,197 @@
+/* Center content vertically and horizontally */
+.main {
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #EEE;
+}
+
+h2 {
+    font-size: medium;
+}
+
+.center {
+    margin-top: 50px;
+    background-color: #FFF;
+    margin-left: 14%;
+    margin-right: 14%;
+    padding-left: 2%;
+    padding-right: 2%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.matches-table th {
+    background-color: #DDD;
+    font-size: small;
+}
+
+.note {
+    padding: 20px;
+    font-size: small;
+}
+
+.important {
+    font-weight: bold;
+    color: #E29700;
+}
+
+.category-sep {
+    padding: 5px;
+    font-size: medium;
+    text-align: left;
+    background-color: #DDD;
+    font-weight: bold;
+}
+
+.match-soon td:first-child {
+    background-color: #ffdab3;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% { background-color: #ffdab3; }
+    50% { background-color: #ffb84d; }
+    100% { background-color: #ffdab3; }
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table, th, td {
+    border: 1px solid #DDD;
+    font-size: small;
+}
+
+.matches-table th {
+    background-color: #0d75b9;
+    color: #ffffff;
+}
+
+.matches-table th:first-child, 
+.matches-table td:first-child {
+    width: 16%;
+}
+
+.matches-table th:nth-child(2), 
+.matches-table td:nth-child(2) {
+    width: 6%;
+}
+
+.matches-table th:nth-child(3), 
+.matches-table td:nth-child(3) {
+    width: 3%;
+    text-align: center;
+}
+
+tr:nth-child(odd) {
+    background-color: #f5f2ef;
+}
+
+.matches-table th, .matches-table td {
+    padding: 2px 5px; /* Reduce padding for more compact tables */
+    font-size: smaller; /* Reduce font size */
+}
+
+/* Responsive styles for mobile devices */
+@media (max-width: 800px) {
+    h1 {
+        font-size: large; /* Increase font size on mobile */
+    }
+
+    .matches-table {
+        font-size: small;
+    }
+
+    .matches-table th, .matches-table td {
+        font-size: x-small; /* Increase font size on mobile */
+        padding: 2px 5px; /* Adjust padding on mobile */
+    }
+
+    .matches-table th:nth-child(3), 
+    .matches-table td:nth-child(3) {
+        display: table-cell; /* Ensure the third column is visible on mobile */
+    }
+
+    .matches-table th:nth-child(6), 
+    .matches-table td:nth-child(6) {
+        display: none; /* Hide the sixth column [Lugar] on mobile for better readability */
+    }
+
+    .matches-table th, .matches-table td {
+        white-space: nowrap; /* Prevent text wrapping */
+    }
+
+    h2 {
+        font-size: smaller; /* Increase font size of league titles on mobile */
+    }
+
+    .center, .container {
+        margin-top: 0; /* Remove top margin on mobile */
+        padding: 10px; /* Reduce padding on mobile */
+        margin-left: 1%;
+        margin-right: 1%;
+    }
+
+    .container-fluid {
+        padding-left: 5px; /* Reduce left margin on mobile */
+        padding-right: 5px; /* Reduce right margin on mobile */
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .calendar-container {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/**************
+Fullcalendar
+**************/
+
+#calendar {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    max-width: none;
+}
+
+.calendar-tooltip {
+    position: absolute;
+    z-index: 10001;
+    background: #e99a40;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: none;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.fc-col-header-cell:nth-child(-n+5), 
+.fc-daygrid-day:nth-child(-n+5) {
+    min-width: 10px;
+    max-width: 50px !important;
+}
+
+.fc-col-header-cell:nth-child(n+6), 
+.fc-daygrid-day:nth-child(n+6) {
+    min-width: 100px !important;
+    max-width: 200px !important;
+}

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hockey RAXOI - Seguintes partidos</title>
+  
+  <!-- Load jQuery first -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+  <!-- Load other libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.15/index.global.min.js" integrity="sha512-PneTXNl1XRcU6n5B1PGTDe3rBXY04Ht+Eddn/NESwvyc+uV903kiyuXCWgL/OfSUgnr8HLSGqotxe6L8/fOvwA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  
+  <!-- Add Bootstrap CSS and JS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  
+  <!-- Load custom scripts -->
+  <script src="js/variables.js"></script>
+  <script src="js/rfep.js"></script>
+  <script src="js/fgp.js"></script>
+  <script src="js/calendar.js"></script>
+
+  <!-- Favicon links -->
+  <link rel="apple-touch-icon" sizes="57x57" href="./img/favicon/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="./img/favicon/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="./img/favicon/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="./img/favicon/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="./img/favicon/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="./img/favicon/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="./img/favicon/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="./img/favicon/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./img/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./img/favicon/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="./img/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="./img/favicon/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./img/favicon/favicon-16x16.png">
+  <link rel="manifest" href="./img/favicon/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="./img/favicon/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style/style.css">
+  <!-- 
+  <meta http-equiv="Content-Security-Policy" 
+        content="default-src 'self'; 
+                 script-src 'self' https://code.jquery.com https://cdnjs.cloudflare.com https://stackpath.bootstrapcdn.com 'nonce-abc123';
+                 style-src 'self' https://stackpath.bootstrapcdn.com 'unsafe-inline';
+                 img-src 'self' data:;
+                 font-src 'self' data:;
+                 connect-src 'self' https://sidgad.cloud https://www.server2.sidgad.es;">
+  -->
+</head>
+<body>
+  <script nonce="abc123">
+    // Check if the URL does not contain the 'reloaded=true' parameter
+    if (!window.location.search.includes('reloaded=true')) {
+      // Add the 'reloaded=true' parameter to the URL and reload the page
+      const newUrl = window.location.href.split('?')[0] + '?reloaded=true';
+      console.log('Redirecting to:', newUrl);
+      window.location.href = newUrl;
+    } else {
+      // Remove the 'reloaded=true' parameter from the URL to avoid infinite reload loop
+      const newUrl = window.location.href.split('?')[0];
+      window.history.replaceState(null, '', newUrl);
+      console.log('Removed reloaded=true parameter from URL');
+    }
+  </script>
+  <div class="container-fluid px-2">
+    <div class="text-center my-4 center">
+      <h1 class="d-flex justify-content-between align-items-center">
+        <span>Hockey Raxoi - Seguintes partidos </span>
+        <img alt="www.raxoi.com" src="img/LOGO_raxoi_laranxa.jpg" class="img-fluid" style="width:75px;height:75px;">
+      </h1>
+      <div id="result" class="table-responsive"></div>
+      <div class="note">
+        <span>* Horarios recollidos da web da <a href="http://competiciones.fgpatinaxe.gal/">F.G.Patinaxe</a>.</span><br>
+        <span>** Horarios recollidos da web da <a href="https://www.hockeypatines.fep.es/">F.E.Patinaje</a>.</span>
+      </div>
+      <br>
+    </div>
+    
+    <div class="calendar-container">
+      <div class="calendar-tooltip" id="tooltip"></div>
+      <div id="calendar"></div>
+    </div>
+  </div>
+
+  <script type="module" nonce="abc123">
+    import { CONFIG } from './js/config.js';
+    import { APIError } from './js/errors.js';
+    import { CacheService } from './js/cache.js';
+    import { LoadingState } from './js/loading.js';
+    import { ErrorDisplay } from './js/errorDisplay.js';
+
+    document.addEventListener('DOMContentLoaded', async function () {
+      LoadingState.show('result');
+      let matches1 = [], matches2 = [], matches3 = [];
+      try {
+        matches1 = await fetchMatchesFgpRaxoi();
+      } catch (error) {
+        console.error('Error fetching matches from FgpRaxoi:', error);
+        ErrorDisplay.show('result', new APIError('FgpRaxoi', 'Failed to fetch matches', error));
+      }
+      try {
+        matches2 = await fetchMatchesOkLigaOuroFem();
+      } catch (error) {
+        console.error('Error fetching matches from OkLigaOuroFem:', error);
+        ErrorDisplay.show('result', new APIError('OkLigaOuroFem', 'Failed to fetch matches', error));
+      }
+      try {
+        matches3 = await fetchMatchesOkLigaBronce();
+      } catch (error) {
+        console.error('Error fetching matches from OkLigaBronce:', error);
+        ErrorDisplay.show('result', new APIError('OkLigaBronce', 'Failed to fetch matches', error));
+      }
+      
+      let allMatches = [...matches1, ...matches2, ...matches3];
+      allMatches = sortMatchesUsingCategoryOrder(allMatches);
+     
+      const numberOfNextDays = 6;
+
+      function filterMatchesNextXDays(matches, numberOfDays = 6) {
+        const today = new Date();
+        const cutoff = new Date();
+        cutoff.setDate(today.getDate() + numberOfDays);
+        return matches.filter(match => {
+          // Date came in that format: '22/02/2025'
+          const [day, month, year] = match.date.split('/').map(Number);
+          const matchDate = new Date(year, month - 1, day); // Ensure match.date is valid ISO format
+          return matchDate >= today && matchDate <= cutoff;
+        });
+      }
+
+      const filterBtn = document.createElement('button');
+      filterBtn.textContent = "Filtrar próximos " + numberOfNextDays + " días";
+      filterBtn.className = "btn btn-primary m-2";
+      document.querySelector('.container-fluid').prepend(filterBtn);
+
+      filterBtn.addEventListener('click', () => {
+        if (filterBtn.textContent === "Tódolos partidos") {
+          renderMatches(allMatches);
+          filterBtn.textContent = "Filtrar próximos " + numberOfNextDays + " días";
+          return;
+        }
+        console.log('All matches count:', allMatches.length);
+        const filteredMatches = filterMatchesNextXDays(allMatches, numberOfNextDays);
+        console.log('Filtered matches count:', filteredMatches.length);
+        renderMatches(filteredMatches);
+        filterBtn.textContent = "Tódolos partidos";
+
+      });
+
+      renderMatches(allMatches);
+      const tables = document.querySelectorAll('table');
+      tables.forEach(table => add_gcal_button(table));
+      replace_name_in_cells();
+
+      // Add Calendar Grid with all matches in the next 14 days
+      const calendar = document.createElement('div');
+      calendar.id = 'calendar';
+      document.body.appendChild(calendar);
+      renderCalendar(allMatches);
+      LoadingState.hide('result');
+    });
+  </script>
+</body>
+</html>
