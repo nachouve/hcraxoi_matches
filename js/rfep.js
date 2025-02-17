@@ -48,7 +48,12 @@ function parseMatchesRfep(doc, league="", filter_team_contains="RAXOI") {
     rows.forEach(row => {
         const cells = row.querySelectorAll('td');
         const [day, month, year] = cells[1].innerText.trim().split('/');
-        const [hour, minute] = cells[2].innerText.trim().split(':');
+        // try if the hour is not available
+        let hour = 23;
+        let minute = 59;
+        if (cells[2].innerText.trim().length > 0) {
+            [hour, minute] = cells[2].innerText.trim().split(':');
+        } 
         const date_obj = new Date(year, month - 1, day, hour, minute);
         sequenceNumber++; // Increment sequence number
         if (cells.length > 0) {
