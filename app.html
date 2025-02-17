@@ -135,12 +135,12 @@
       }
 
       const filterBtn = document.createElement('button');
-      filterBtn.textContent = "Filtrar próximos " + numberOfNextDays + " días";
+      filterBtn.textContent = "Ver máis";
       filterBtn.className = "btn btn-primary m-2";
       document.querySelector('.container-fluid').prepend(filterBtn);
 
       filterBtn.addEventListener('click', () => {
-        if (filterBtn.textContent === "Tódolos partidos") {
+        if (filterBtn.textContent === "Ver máis") {
           renderMatches(allMatches);
           filterBtn.textContent = "Filtrar próximos " + numberOfNextDays + " días";
           return;
@@ -149,11 +149,10 @@
         const filteredMatches = filterMatchesNextXDays(allMatches, numberOfNextDays);
         console.log('Filtered matches count:', filteredMatches.length);
         renderMatches(filteredMatches);
-        filterBtn.textContent = "Tódolos partidos";
-
+        filterBtn.textContent = "Ver máis";
       });
 
-      renderMatches(allMatches);
+      renderMatches(filterMatchesNextXDays(allMatches, numberOfNextDays));
       replace_name_in_cells();
 
       // Add Calendar Grid with all matches in the next 14 days
