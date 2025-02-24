@@ -118,12 +118,14 @@
       }
       
       let allMatches = [...matches1, ...matches2, ...matches3];
-      allMatches = sortMatchesUsingCategoryOrder(allMatches);
-     
+      allMatches = sortMatchesByDateAndCategory(allMatches);
+
       const numberOfNextDays = 6;
 
       function filterMatchesNextXDays(matches, numberOfDays = 6) {
         const today = new Date();
+        // just consider the date, not the time
+        today.setHours(0, 0, 0, 0);
         const cutoff = new Date();
         cutoff.setDate(today.getDate() + numberOfDays);
         return matches.filter(match => {

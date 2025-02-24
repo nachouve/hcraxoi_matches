@@ -77,8 +77,22 @@ function filterTable($table, filter) {
     $table.find('tr:not(:contains(' + filter + '))').remove();
 }
 
+function sortMatchesByDate(matches) {
+    return matches.sort((a, b) => new Date(a.date_obj) - new Date(b.date_obj));
+}
+
 function sortMatchesUsingCategoryOrder(matches) {
     return matches.sort((a, b) => customSort(a.league, b.league, CATEGORY_ORDER));
+}
+
+function sortMatchesByDateAndCategory(matches) {
+    return matches.sort((a, b) => {
+        const categoryComparison = customSort(a.league, b.league, CATEGORY_ORDER);
+        if (categoryComparison !== 0) {
+            return categoryComparison;
+        }
+        return new Date(a.date_obj) - new Date(b.date_obj);
+    });
 }
 
 function groupRowsByCategory($table) {
