@@ -78,7 +78,7 @@ function filterTable($table, filter) {
 }
 
 function sortMatchesByDate(matches) {
-    return matches.sort((a, b) => new Date(a.date_obj) - new Date(b.date_obj));
+    return matches.sort((a, b) => a.date_obj - b.date_obj);
 }
 
 function sortMatchesUsingCategoryOrder(matches) {
@@ -86,13 +86,7 @@ function sortMatchesUsingCategoryOrder(matches) {
 }
 
 function sortMatchesByDateAndCategory(matches) {
-    return matches.sort((a, b) => {
-        const categoryComparison = customSort(a.league, b.league, CATEGORY_ORDER);
-        if (categoryComparison !== 0) {
-            return categoryComparison;
-        }
-        return new Date(a.date_obj) - new Date(b.date_obj);
-    });
+    return sortMatchesUsingCategoryOrder(sortMatchesByDate(matches));
 }
 
 function groupRowsByCategory($table) {
