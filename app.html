@@ -18,6 +18,7 @@
   
   <!-- Load custom scripts -->
   <script src="js/variables.js"></script>
+  <script src="js/renderer.js"></script>
   <script src="js/rfep.js"></script>
   <script src="js/fgp.js"></script>
   <script src="js/calendar.js"></script>
@@ -122,38 +123,50 @@
         console.error('Error fetching matches from OkLigaBronce:', error);
         ErrorDisplay.show('result', new APIError('OkLigaBronce', 'Failed to fetch matches', error));
       }
-      
-      let allMatches = [...matches1, ...matches2, ...matches3];
+
+      const TEST = false;
+      let allMatches;
+
+      if (TEST) {
+        // load from data/matches.json
+        const response = await fetch('data/matches.json');
+        allMatches = await response.json();
+        allMatches = allMatches.data;
+      } else {
+        allMatches = [...matches1, ...matches2, ...matches3];
+      }
+
       allMatches = sortMatchesUsingCategoryOrder(allMatches);
 
-      // Add this code to save matches
-      fetch('save_matches.php', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(allMatches)
-      })
-      .then(async response => {
-          const data = await response.json();
-          if (!response.ok) {
-              throw new Error(data.error || 'Network response was not ok');
-          }
-          return data;
-      })
-      .then(data => {
-          if (data.success) {
-              console.log('Matches saved:', data.message);
-          } else {
-              console.error('Error:', data.error);
-          }
-      })
-      .catch(error => {
-          console.error('Error saving matches:', error);
-          // You might want to show this error to the user
-          ErrorDisplay.show('result', new APIError('SaveMatches', 'Failed to save matches', error));
-      });
-     
+      if (!TEST) {
+        // Save all matches to the server in data/matches.json file (used as cache)
+        fetch('save_matches.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(allMatches)
+        })
+        .then(async response => {
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'Network response was not ok');
+            }
+            return data;
+        })
+        .then(data => {
+            if (data.success) {
+                console.log('Matches saved:', data.message);
+            } else {
+                console.error('Error:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error saving matches:', error);
+            // You might want to show this error to the user
+            ErrorDisplay.show('result', new APIError('SaveMatches', 'Failed to save matches', error));
+        });
+      }
       const numberOfNextDays = 6;
 
       function filterMatchesNextXDays(matches, numberOfDays = 6) {
