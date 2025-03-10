@@ -1,4 +1,6 @@
+// Description: Global variables for the project
 
+// http://competiciones.fgpatinaxe.gal/ 
 const fgpURL = "https://sidgad.cloud/shared/portales_files/agenda_portales.php?cliente=fgpatinaxe&idm=1&id_temp=31";
 const FILTER_ONLY = "RAXOI";
 const WEEK_DAYS = ['Domingo', 'Luns', 'Martes', 'Mercores', 'Xoves', 'Venres', 'Sabado'];

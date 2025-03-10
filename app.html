@@ -76,7 +76,7 @@
       </h1>
       <div id="result" class="table-responsive"></div>
       <div class="note">
-        <span>* Horarios recollidos da web da <a href="http://competiciones.fgpatinaxe.gal/">F.G.Patinaxe</a>.</span><br>
+        <span>* Horarios recollidos da web da <a href="https://www.hockeypatines.fgpatinaxe.gal/">F.G.Patinaxe</a>.</span><br>
         <span>** Horarios recollidos da web da <a href="https://www.hockeypatines.fep.es/">F.E.Patinaje</a>.</span>
       </div>
       <br>
@@ -86,6 +86,12 @@
       <div class="calendar-tooltip" id="tooltip"></div>
       <div id="calendar"></div>
     </div>
+  </div>
+
+  <div class="small" style="font-size: .5rem;">
+    <p class="text-center">
+      [EN PROBAS] Queres facerlle preguntas á nosa IA ? <a href="https://nachouve-hcraxoi-agent.hf.space/" target="_blank">RaxoIA - HC Raxoi AI Assistant</a>
+    </p>
   </div>
 
   <script type="module" nonce="abc123">
@@ -119,6 +125,34 @@
       
       let allMatches = [...matches1, ...matches2, ...matches3];
       allMatches = sortMatchesUsingCategoryOrder(allMatches);
+
+      // Add this code to save matches
+      fetch('save_matches.php', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(allMatches)
+      })
+      .then(async response => {
+          const data = await response.json();
+          if (!response.ok) {
+              throw new Error(data.error || 'Network response was not ok');
+          }
+          return data;
+      })
+      .then(data => {
+          if (data.success) {
+              console.log('Matches saved:', data.message);
+          } else {
+              console.error('Error:', data.error);
+          }
+      })
+      .catch(error => {
+          console.error('Error saving matches:', error);
+          // You might want to show this error to the user
+          ErrorDisplay.show('result', new APIError('SaveMatches', 'Failed to save matches', error));
+      });
      
       const numberOfNextDays = 6;
 
