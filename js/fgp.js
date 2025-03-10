@@ -77,8 +77,16 @@ function filterTable($table, filter) {
     $table.find('tr:not(:contains(' + filter + '))').remove();
 }
 
+function sortMatchesByDate(matches) {
+    return matches.sort((a, b) => a.date_obj - b.date_obj);
+}
+
 function sortMatchesUsingCategoryOrder(matches) {
     return matches.sort((a, b) => customSort(a.league, b.league, CATEGORY_ORDER));
+}
+
+function sortMatchesByDateAndCategory(matches) {
+    return sortMatchesUsingCategoryOrder(sortMatchesByDate(matches));
 }
 
 function groupRowsByCategory($table) {
