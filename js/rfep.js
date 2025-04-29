@@ -83,8 +83,14 @@ function processRowDateRfep(match) {
     const dateText = match.date;
     const dateArr = dateText.split("/");
     const matchDate = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
-    const dayName = WEEK_DAYS[matchDate.getDay()];
-    match.formatted_date = dayName.substring(0, 3) + " " + dateText;
+    const dayIndex = matchDate.getDay();
+    let dayName = "";
+    if (typeof WEEK_DAYS === "undefined" || !WEEK_DAYS[dayIndex]) {
+        console.warn(`WEEK_DAYS undefined or invalid dayIndex (${dayIndex}) for date: ${dateText} in league: ${match.league} with match: ${JSON.stringify(match)}`);
+    } else {
+        dayName = WEEK_DAYS[dayIndex];
+    }
+    match.formatted_date = dayName ? dayName.substring(0, 3) + " " + dateText : dateText;
     if (is_soon(matchDate)) {
         match.soon = true;
     }
