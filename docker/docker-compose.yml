@@ -1,0 +1,19 @@
+name: hcraxoimatches
+
+services:
+  web:
+    image: hcraxoimatches
+    container_name: hcraxoi_web
+    build: .
+    ports:
+      - "980:80" # host:container (host port 980 maps to container port 80)
+    volumes:
+      - ..:/var/www/html
+    environment:
+      - PHP_ERROR_REPORTING=E_ALL
+    # Add healthcheck
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

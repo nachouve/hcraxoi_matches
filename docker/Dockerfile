@@ -4,7 +4,8 @@ FROM php:8.2-fpm-alpine
 RUN apk add --no-cache nginx
 
 # Configure nginx
-COPY docker/nginx.conf /etc/nginx/nginx.conf
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 # Create directories
 RUN mkdir -p /run/php /var/www/html /usr/local/bin
@@ -23,6 +24,5 @@ WORKDIR /var/www/html
 EXPOSE 80
 
 # Start both services
-COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 CMD ["/usr/local/bin/docker-entrypoint.sh"]
