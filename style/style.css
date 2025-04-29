@@ -49,7 +49,8 @@ h2 {
 
 .match-soon td:first-child {
     background-color: #ffdab3;
-    animation: blink 1s infinite;
+    /* Add blinking animation to the first cell of rows with the "match-soon" class */
+    /* animation: blink 1s infinite; */
 }
 
 @keyframes blink {
