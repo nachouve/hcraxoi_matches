@@ -129,7 +129,7 @@ async function renderCalendar(matches, next_days=50) {
 
   var calendarEl = document.getElementById('calendar');
   var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
+    initialView: 'listWeek',
     firstDay: 1,
     events: events,
     eventOrder: eventOrder, // Add this line to set the event order
