@@ -1,6 +1,12 @@
-//import { fgpURL, CATEGORY_ORDER, FILTER_ONLY, days } from "./variables";
+import { is_soon } from "./renderer.js";
+import { CATEGORY_ORDER, fgpURL, FILTER_ONLY, WEEK_DAYS } from "./variables.js";
 
-async function fetchMatchesFgpRaxoi() {
+// Verify CryptoJS is available
+if (typeof CryptoJS === 'undefined') {
+    throw new Error('CryptoJS is required but not loaded. Please ensure the CryptoJS script is included before this file.');
+}
+
+export async function fetchMatchesFgpRaxoi() {
     return fetchMatchesFgp(fgpURL, FILTER_ONLY);
 }
 
@@ -21,6 +27,8 @@ function parseMatchesFgp(table) {
     const matches = [];
     let currentCategory = "";
     let sequenceNumber = 0; // Initialize sequence number
+    let leagueId; // Declare leagueId here so it's in scope
+    
     $table.find("tr").each(function () {
         const cells = $(this).find("td");
         let date_str = cells.eq(2).text().trim();
@@ -77,7 +85,7 @@ function sortMatchesByDate(matches) {
     return matches.sort((a, b) => a.date_obj - b.date_obj);
 }
 
-function sortMatchesUsingCategoryOrder(matches) {
+export function sortMatchesUsingCategoryOrder(matches) {
     return matches.sort((a, b) => customSort(a.league, b.league, CATEGORY_ORDER));
 }
 
@@ -119,6 +127,10 @@ function sortGroups(groups) {
 
 function clean_category(text) {
     //TODO
+}
+
+function customSort(a, b, categoryOrder = CATEGORY_ORDER) {
+    // ...existing code...
 }
 
 

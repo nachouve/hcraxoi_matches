@@ -1,5 +1,76 @@
-//import { CATEGORY_ORDER, leagueColors } from './variables.js';
-//import { customSort } from './fgp.js';
+import { CATEGORY_ORDER, FILTER_ONLY, leagueColors } from './variables.js';
+
+export function renderCalendar(matches, next_days=50) {
+  const today = new Date();
+  const next_week = new Date(today);
+  next_week.setDate(today.getDate() + next_days);
+  const next_matches = matches.filter(match => match.date_obj >= today && match.date_obj <= next_week);
+
+  const events = next_matches.map(match => ({
+    title: match.league,
+    description: `${match.team1} vs ${match.team2}`,
+    // print Orange the team name if that team contains "RAXOI"
+    htmlDescription: `${match.team1.includes(FILTER_ONLY) ? `<span style="color: orange;">${match.team1}</span>` : match.team1} vs ${match.team2.includes(FILTER_ONLY) ? `<span style="color: orange;">${match.team2}</span>` : match.team2}`,
+    location: match.location,
+    team1: match.team1,
+    team2: match.team2,
+    start: match.date_obj,
+    color: getLeagueColor(match.league)
+  }));
+
+  var calendarEl = document.getElementById('calendar');
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'listWeek',
+    firstDay: 1,
+    events: events,
+    eventOrder: eventOrder, // Add this line to set the event order
+    eventTimeFormat: { // use 24-hour format
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    },
+    eventMouseEnter: function(info) {
+      const tooltip = document.getElementById('tooltip');
+      tooltip.innerHTML = `<strong>${info.event.title}</strong><br>${info.event.start.toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false })}<br>${info.event.extendedProps.description}`;
+      tooltip.style.display = 'block';
+    },
+    eventMouseLeave: function() {
+      const tooltip = document.getElementById('tooltip');
+      tooltip.style.display = 'none';
+    },
+    eventClick: function(info) {
+      const modalHtml = `
+        <div class="modal fade" id="eventDetailsModal" tabindex="-1" role="dialog" aria-labelledby="eventDetailsModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="eventDetailsModalLabel">${info.event.title}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p><strong>Día:</strong> ${info.event.start.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                <p><strong>Hora:</strong> ${info.event.start.toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false })}</p>
+                <p><strong>Description:</strong> ${info.event.extendedProps.htmlDescription}</p>
+                <p><strong>Location:</strong> ${info.event.extendedProps.location}</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      $('body').append(modalHtml);
+      $('#eventDetailsModal').modal('show');
+      $('#eventDetailsModal').on('hidden.bs.modal', function () {
+        $(this).remove();
+      });
+    }
+  });
+  calendar.render();
+}
 
 function add_gcal_button(table) {
     // Ensure table is a DOM element
@@ -109,74 +180,23 @@ function eventOrder(eventA, eventB) {
   return customSort(eventA.title, eventB.title, CATEGORY_ORDER);
 }
 
-async function renderCalendar(matches, next_days=50) {
-  const today = new Date();
-  const next_week = new Date(today);
-  next_week.setDate(today.getDate() + next_days);
-  const next_matches = matches.filter(match => match.date_obj >= today && match.date_obj <= next_week);
-
-  const events = next_matches.map(match => ({
-    title: match.league,
-    description: `${match.team1} vs ${match.team2}`,
-    // print Orange the team name if that team contains "RAXOI"
-    htmlDescription: `${match.team1.includes(FILTER_ONLY) ? `<span style="color: orange;">${match.team1}</span>` : match.team1} vs ${match.team2.includes(FILTER_ONLY) ? `<span style="color: orange;">${match.team2}</span>` : match.team2}`,
-    location: match.location,
-    team1: match.team1,
-    team2: match.team2,
-    start: match.date_obj,
-    color: getLeagueColor(match.league)
-  }));
-
-  var calendarEl = document.getElementById('calendar');
-  var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'listWeek',
-    firstDay: 1,
-    events: events,
-    eventOrder: eventOrder, // Add this line to set the event order
-    eventTimeFormat: { // use 24-hour format
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    },
-    eventMouseEnter: function(info) {
-      const tooltip = document.getElementById('tooltip');
-      tooltip.innerHTML = `<strong>${info.event.title}</strong><br>${info.event.start.toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false })}<br>${info.event.extendedProps.description}`;
-      tooltip.style.display = 'block';
-    },
-    eventMouseLeave: function() {
-      const tooltip = document.getElementById('tooltip');
-      tooltip.style.display = 'none';
-    },
-    eventClick: function(info) {
-      const modalHtml = `
-        <div class="modal fade" id="eventDetailsModal" tabindex="-1" role="dialog" aria-labelledby="eventDetailsModalLabel" aria-hidden="true">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="eventDetailsModalLabel">${info.event.title}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <p><strong>Día:</strong> ${info.event.start.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                <p><strong>Hora:</strong> ${info.event.start.toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false })}</p>
-                <p><strong>Description:</strong> ${info.event.extendedProps.htmlDescription}</p>
-                <p><strong>Location:</strong> ${info.event.extendedProps.location}</p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      $('body').append(modalHtml);
-      $('#eventDetailsModal').modal('show');
-      $('#eventDetailsModal').on('hidden.bs.modal', function () {
-        $(this).remove();
-      });
+/**
+ * Custom sort function that sorts strings based on a predefined category order.
+ */
+function customSort(a, b, categoryOrder = CATEGORY_ORDER) {
+  for (var i = 0; i < categoryOrder.length; i++) {
+    var startA = a.startsWith(categoryOrder[i]);
+    var startB = b.startsWith(categoryOrder[i]);
+    if (startA && startB) {
+      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+    } else if (startA) {
+      return -1;
+    } else if (startB) {
+      return 1;
     }
-  });
-  calendar.render();
+  }
+  return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
 }
+
+// Make functions globally available if needed
+window.add_gcal_button = add_gcal_button;

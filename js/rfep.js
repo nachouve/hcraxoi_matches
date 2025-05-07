@@ -1,8 +1,17 @@
 ///// File: rfep.js
-//import { days, ligas } from './variables.js';
+import { is_soon } from './renderer.js';
+import { ligas, WEEK_DAYS } from './variables.js';
+
+// Verify CryptoJS is available
+if (typeof CryptoJS === 'undefined') {
+    throw new Error('CryptoJS is required but not loaded. Please ensure the CryptoJS script is included before this file.');
+}
 
 async function fetchMatchesRfep(liga, filter_team_contains="RAXOI", only_next=true) {
-    const url = ligas[liga]; 
+    const url = ligas[liga];
+    if (!url) {
+        throw new Error(`Liga "${liga}" not found in configuration`);
+    }
     const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -28,7 +37,7 @@ async function fetchMatchesRfep(liga, filter_team_contains="RAXOI", only_next=tr
     const text = await response.text();
     const parser = new DOMParser();
     const doc = parser.parseFromString(text, 'text/html');
-    let matches = parseMatchesRfep(doc, league=liga, filter_team_contains=filter_team_contains);
+    let matches = parseMatchesRfep(doc, liga, filter_team_contains);
     if (only_next) {
         const now = new Date();
         matches = matches.filter(match => {
@@ -96,18 +105,18 @@ function processRowDateRfep(match) {
     }
 }
 
-function fetchMatchesOkLigaOuroFem() {
+export function fetchMatchesOkLigaOuroFem() {
     return fetchMatchesRfep('OK LIGA OURO FEMENINA');
 };
 
-function fetchMatchesOkLigaBronce() {
+export function fetchMatchesOkLigaBronce() {
     return fetchMatchesRfep('OK LIGA BRONCE NORTE');
 };
 
-function fetchMatchesOkLigaPlataFem23() {
+export function fetchMatchesOkLigaPlataFem23() {
     return fetchMatchesRfep('OK LIGA PLATA FEMENINA 2023');
 }
 
-function fetchMatchesOkLigaBronce23() {
+export function fetchMatchesOkLigaBronce23() {
     return fetchMatchesRfep('OK LIGA BRONCE NORTE 2023');
 }
