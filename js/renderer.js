@@ -1,4 +1,8 @@
-function renderMatches(matches) {
+// Import AppState and CONFIG
+import { AppState, CONFIG } from './config.js';
+import { CATEGORY_ORDER } from './variables.js';
+
+export function renderMatches(matches) {
     const container = document.getElementById('result');
     // Clear the container before rendering
     container.innerHTML = '';
@@ -12,16 +16,27 @@ function renderMatches(matches) {
     for (const league in sortedGroups) {
         const leagueTitle = document.createElement('h2');
         leagueTitle.innerText = league;
-        leagueTitle.classList.add('text-left'); // Left-align the league title
-        leagueTitle.classList.add('hockey-category'); // Used in the add_to_gcal function
+        leagueTitle.classList.add('text-left'); 
+        leagueTitle.classList.add('hockey-category');
         container.appendChild(leagueTitle);
 
         const table = document.createElement('table');
-        table.classList.add('table', 'table-striped', 'table-bordered', 'table-sm', 'matches-table'); // Add 'table-sm' for compact tables
-        table.style.marginBottom = '2px'; // Reduce margin between tables
-        const header = document.createElement('thead');
-        header.innerHTML = '<tr><th>Data</th><th>Hora</th><th></th><th>Local</th><th>Visitante</th><th>Lugar</th></tr>'; // Removed "ID" column
-        table.appendChild(header);
+        table.classList.add('table', 'table-striped', 'table-bordered', 'table-sm', 'matches-table');
+        table.style.marginBottom = '2px';
+
+        // Add table header
+        const thead = document.createElement('thead');
+        thead.innerHTML = `
+            <tr>
+                <th>Data</th>
+                <th>Hora</th>
+                <th></th>
+                <th>Local</th>
+                <th>Visitante</th>
+                <th>Lugar</th>
+            </tr>
+        `;
+        table.appendChild(thead);
 
         const tbody = document.createElement('tbody');
         groupedMatches[league].forEach(match => {
@@ -30,7 +45,7 @@ function renderMatches(matches) {
                 row.classList.add('table-warning');
                 row.classList.add('match-soon');
             }
-            row.innerHTML = `<td>${match.formatted_date}</td><td>${match.time}</td><td></td><td>${match.team1}</td><td>${match.team2}</td><td>${match.location}</td>`; // Removed "ID" column
+            row.innerHTML = `<td>${match.formatted_date}</td><td>${match.time}</td><td></td><td>${match.team1}</td><td>${match.team2}</td><td>${match.location}</td>`;
             tbody.appendChild(row);
         });
         table.appendChild(tbody);
@@ -84,7 +99,7 @@ function showMatchDetails(match) {
     });
 }
 
-function replace_name_in_cells() {
+export function replace_name_in_cells() {
     const targetString = 'HOCKEY CLUB RAXOI';
     const newString = 'HC RAXOI';
 
@@ -142,8 +157,64 @@ function filterMatchesNextXDays(matches, numberOfDays = 6) {
     });
 }
 
-// Function to check if a match is happening soon
-function is_soon(date, in_next_days=7) {
+// Export the is_soon function to make it globally available
+export function is_soon(date, in_next_days=7) {
     const now = new Date();
     return date.getTime() - now.getTime() < in_next_days * 24 * 60 * 60 * 1000;
+}
+
+export function setupCategoryFilter(allMatches) {
+  const uniqueCategories = [...new Set(allMatches.map(match => match.league))];
+  const filterForm = document.getElementById('filterForm');
+  
+  // Clear existing checkboxes
+  filterForm.innerHTML = '';
+
+  // Populate checkboxes dynamically
+  uniqueCategories.forEach(category => {
+    const checkbox = document.createElement('div');
+    checkbox.className = 'form-check';
+    checkbox.innerHTML = `
+      <input class="form-check-input" type="checkbox" value="${category}" id="filter-${category}" checked>
+      <label class="form-check-label" for="filter-${category}">
+        ${category}
+      </label>
+    `;
+    filterForm.appendChild(checkbox);
+  });
+  
+  // Load saved categories from AppState
+  const savedCategories = AppState.getSelectedCategories();
+  if (savedCategories.length > 0) {
+    document.querySelectorAll('#filterForm input[type="checkbox"]').forEach(checkbox => {
+      checkbox.checked = savedCategories.includes(checkbox.value);
+    });
+  }
+
+  // Apply filter logic
+  document.getElementById('applyFilter').addEventListener('click', () => {
+    const selectedCategories = Array.from(filterForm.querySelectorAll('input:checked')).map(input => input.value);
+    
+    // Save to centralized state
+    AppState.setSelectedCategories(selectedCategories);
+    
+    // First filter by categories
+    let filteredMatches = allMatches.filter(match => selectedCategories.includes(match.league));
+    
+    // Then apply date filter if enabled
+    if (AppState.getFilterMode()) {
+      filteredMatches = filterMatchesNextXDays(filteredMatches, CONFIG.NUMBER_OF_NEXT_DAYS);
+    }
+
+    if (filteredMatches.length === 0) {
+      console.warn('No matches found for the selected categories:', selectedCategories);
+    }
+
+    renderMatches(filteredMatches);
+    $('#filterModal').modal('hide');
+  });
+}
+
+export function sortMatchesUsingCategoryOrder(matches) {
+  return matches.sort((a, b) => customSort(a.league, b.league, CATEGORY_ORDER));
 }

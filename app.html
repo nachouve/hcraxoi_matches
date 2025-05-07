@@ -17,11 +17,11 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   
   <!-- Load custom scripts -->
-  <script src="js/variables.js"></script>
-  <script src="js/renderer.js"></script>
-  <script src="js/rfep.js"></script>
-  <script src="js/fgp.js"></script>
-  <script src="js/calendar.js"></script>
+  <script type="module" src="js/variables.js"></script>
+  <script type="module" src="js/renderer.js"></script>
+  <script type="module" src="js/rfep.js"></script>
+  <script type="module" src="js/fgp.js"></script>
+  <script type="module" src="js/calendar.js"></script>
 
   <!-- Favicon links -->
   <link rel="apple-touch-icon" sizes="57x57" href="./img/favicon/apple-icon-57x57.png">
@@ -95,12 +95,39 @@
     </p>
   </div>
 
+  <!-- Add a modal for category filtering -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="filterModalLabel">Filter by Category</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="filterForm">
+            <!-- Checkboxes will be dynamically added here -->
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="applyFilter">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script type="module" nonce="abc123">
-    import { CONFIG } from './js/config.js';
+    import { CONFIG, AppState } from './js/config.js';
     import { APIError } from './js/errors.js';
     import { CacheService } from './js/cache.js';
     import { LoadingState } from './js/loading.js';
     import { ErrorDisplay } from './js/errorDisplay.js';
+    import { fetchMatchesFgpRaxoi } from './js/fgp.js';
+    import { fetchMatchesOkLigaOuroFem, fetchMatchesOkLigaBronce } from './js/rfep.js';
+    import { renderMatches, replace_name_in_cells, sortMatchesUsingCategoryOrder, setupCategoryFilter } from './js/renderer.js';
+    import { renderCalendar } from './js/calendar.js';
 
     document.addEventListener('DOMContentLoaded', async function () {
       LoadingState.show('result');
@@ -184,24 +211,98 @@
       }
 
       const filterBtn = document.createElement('button');
-      filterBtn.textContent = "Ver máis";
+      // Set initial button text based on AppState
+      filterBtn.textContent = AppState.getFilterMode() ? "Ver máis" : "Filtrar próximos " + CONFIG.NUMBER_OF_NEXT_DAYS + " días";
       filterBtn.className = "btn btn-primary m-2";
       document.querySelector('.container-fluid').prepend(filterBtn);
 
       filterBtn.addEventListener('click', () => {
-        if (filterBtn.textContent === "Ver máis") {
-          renderMatches(allMatches);
-          filterBtn.textContent = "Filtrar próximos " + numberOfNextDays + " días";
-          return;
+        const selectedCategories = AppState.getSelectedCategories();
+        let filteredMatches = allMatches;
+        
+        // First apply category filter
+        if (selectedCategories.length > 0) {
+          filteredMatches = filteredMatches.filter(match => selectedCategories.includes(match.league));
         }
-        console.log('All matches count:', allMatches.length);
-        const filteredMatches = filterMatchesNextXDays(allMatches, numberOfNextDays);
-        console.log('Filtered matches count:', filteredMatches.length);
-        renderMatches(filteredMatches);
-        filterBtn.textContent = "Ver máis";
+
+        if (AppState.getFilterMode()) {
+          // When changing to "Ver máis" mode
+          renderMatches(filteredMatches);
+          filterBtn.textContent = "Filtrar próximos " + CONFIG.NUMBER_OF_NEXT_DAYS + " días";
+        } else {
+          // When changing to "Filtrar próximos X días" mode
+          console.log('Matches before date filter:', filteredMatches.length);
+          filteredMatches = filterMatchesNextXDays(filteredMatches, CONFIG.NUMBER_OF_NEXT_DAYS);
+          console.log('Matches after date filter:', filteredMatches.length);
+          renderMatches(filteredMatches);
+          filterBtn.textContent = "Ver máis";
+        }
+        AppState.toggleFilterMode();
       });
 
-      renderMatches(filterMatchesNextXDays(allMatches, numberOfNextDays));
+      // Add a button to open the filter modal
+      const filterModalBtn = document.createElement('button');
+      filterModalBtn.textContent = "Filter by Category";
+      filterModalBtn.className = "btn btn-secondary m-2";
+      filterModalBtn.setAttribute('data-toggle', 'modal');
+      filterModalBtn.setAttribute('data-target', '#filterModal');
+      document.querySelector('.container-fluid').prepend(filterModalBtn);
+
+      // Setup category filter
+      setupCategoryFilter(allMatches);
+
+      // Add "Select All" and "Unselect All" buttons to the filter modal
+      const selectAllBtn = document.createElement('button');
+      selectAllBtn.textContent = "Select All";
+      selectAllBtn.className = "btn btn-link";
+      selectAllBtn.type = "button"; // Prevent form submission
+      selectAllBtn.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent default behavior
+        document.querySelectorAll('#filterForm input[type="checkbox"]').forEach(checkbox => checkbox.checked = true);
+      });
+
+      const unselectAllBtn = document.createElement('button');
+      unselectAllBtn.textContent = "Unselect All";
+      unselectAllBtn.className = "btn btn-link";
+      unselectAllBtn.type = "button"; // Prevent form submission
+      unselectAllBtn.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent default behavior
+        document.querySelectorAll('#filterForm input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
+      });
+
+      const filterForm = document.getElementById('filterForm');
+      filterForm.prepend(unselectAllBtn);
+      filterForm.prepend(selectAllBtn);
+
+      // Save filter preferences to local storage
+      document.getElementById('applyFilter').addEventListener('click', () => {
+        const selectedCategories = Array.from(filterForm.querySelectorAll('input:checked')).map(input => input.value);
+        
+        // Use AppState instead of direct localStorage manipulation
+        AppState.setSelectedCategories(selectedCategories);
+
+        // Apply the filter based on the current mode
+        const matchesToRender = AppState.getFilterMode() 
+          ? filterMatchesNextXDays(allMatches, CONFIG.NUMBER_OF_NEXT_DAYS) 
+          : allMatches;
+
+        const filteredMatches = matchesToRender.filter(match => selectedCategories.includes(match.league));
+        renderMatches(filteredMatches);
+      });
+
+      // Load filter preferences from local storage
+      const savedCategories = JSON.parse(localStorage.getItem('selectedCategories')) || [];
+      if (savedCategories.length > 0) {
+        document.querySelectorAll('#filterForm input[type="checkbox"]').forEach(checkbox => {
+          checkbox.checked = savedCategories.includes(checkbox.value);
+        });
+      }
+
+      // Initial rendering based on AppState
+      const initialMatches = AppState.getFilterMode() 
+        ? filterMatchesNextXDays(allMatches, CONFIG.NUMBER_OF_NEXT_DAYS)
+        : allMatches;
+      renderMatches(initialMatches);
       replace_name_in_cells();
 
       // Add Calendar Grid with all matches in the next 14 days
