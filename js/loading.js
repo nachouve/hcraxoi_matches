@@ -4,7 +4,7 @@ export class LoadingState {
     container.innerHTML = `
       <div class="loading-spinner">
         <div class="spinner-border text-primary" role="status">
-          <span class="sr-only">Loading...</span>
+          <span class="sr-only">Cargando...</span>
         </div>
       </div>
     `;

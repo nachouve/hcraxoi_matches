@@ -11,6 +11,9 @@ services:
       - ..:/var/www/html
     environment:
       - PHP_ERROR_REPORTING=E_ALL
+      - http_proxy=${http_proxy}
+      - https_proxy=${https_proxy}
+      - no_proxy=${no_proxy}
     # Add healthcheck
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/"]

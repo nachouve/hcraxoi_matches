@@ -100,8 +100,8 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="filterModalLabel">Filter by Category</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <h5 class="modal-title" id="filterModalLabel">Filtrar por categoría</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Pechar">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -111,8 +111,8 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" id="applyFilter">Apply</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="applyFilter">Aplicar</button>
         </div>
       </div>
     </div>
@@ -242,7 +242,7 @@
 
       // Add a button to open the filter modal
       const filterModalBtn = document.createElement('button');
-      filterModalBtn.textContent = "Filter by Category";
+      filterModalBtn.textContent = "Filtrar por categoría";
       filterModalBtn.className = "btn btn-secondary m-2";
       filterModalBtn.setAttribute('data-toggle', 'modal');
       filterModalBtn.setAttribute('data-target', '#filterModal');
@@ -253,7 +253,7 @@
 
       // Add "Select All" and "Unselect All" buttons to the filter modal
       const selectAllBtn = document.createElement('button');
-      selectAllBtn.textContent = "Select All";
+      selectAllBtn.textContent = "Marcar todo";
       selectAllBtn.className = "btn btn-link";
       selectAllBtn.type = "button"; // Prevent form submission
       selectAllBtn.addEventListener('click', (event) => {
@@ -262,7 +262,7 @@
       });
 
       const unselectAllBtn = document.createElement('button');
-      unselectAllBtn.textContent = "Unselect All";
+      unselectAllBtn.textContent = "Desmarcar";
       unselectAllBtn.className = "btn btn-link";
       unselectAllBtn.type = "button"; // Prevent form submission
       unselectAllBtn.addEventListener('click', (event) => {
