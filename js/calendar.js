@@ -7,7 +7,7 @@ export function renderCalendar(matches, next_days=50) {
   const next_matches = matches.filter(match => match.date_obj >= today && match.date_obj <= next_week);
 
   const events = next_matches.map(match => ({
-    title: match.league,
+    title: match.league + `${match.team1.includes(FILTER_ONLY) ? ` (local)` : ``}`,
     description: `${match.team1} vs ${match.team2}`,
     // print Orange the team name if that team contains "RAXOI"
     htmlDescription: `${match.team1.includes(FILTER_ONLY) ? `<span style="color: orange;">${match.team1}</span>` : match.team1} vs ${match.team2.includes(FILTER_ONLY) ? `<span style="color: orange;">${match.team2}</span>` : match.team2}`,
@@ -23,7 +23,7 @@ export function renderCalendar(matches, next_days=50) {
     initialView: 'listWeek',
     firstDay: 1,
     events: events,
-    eventOrder: eventOrder, // Add this line to set the event order
+    // eventOrder: eventOrder, // Add this line to set the event order
     eventTimeFormat: { // use 24-hour format
       hour: '2-digit',
       minute: '2-digit',

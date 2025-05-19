@@ -51,6 +51,7 @@ h2 {
     background-color: #ffdab3;
     /* Add blinking animation to the first cell of rows with the "match-soon" class */
     /* animation: blink 1s infinite; */
+    font-weight: bold;
 }
 
 @keyframes blink {
