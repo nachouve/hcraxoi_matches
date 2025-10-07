@@ -125,7 +125,7 @@
     import { LoadingState } from './js/loading.js';
     import { ErrorDisplay } from './js/errorDisplay.js';
     import { fetchMatchesFgpRaxoi } from './js/fgp.js';
-    import { fetchMatchesOkLigaOuroFem, fetchMatchesOkLigaBronce } from './js/rfep.js';
+    import { fetchMatchesOkLigaPrataFem } from './js/rfep.js';
     import { renderMatches, replace_name_in_cells, sortMatchesUsingCategoryOrder, setupCategoryFilter } from './js/renderer.js';
     import { renderCalendar } from './js/calendar.js';
 
@@ -139,16 +139,10 @@
         ErrorDisplay.show('result', new APIError('FgpRaxoi', 'Failed to fetch matches', error));
       }
       try {
-        matches2 = await fetchMatchesOkLigaOuroFem();
+        matches2 = await fetchMatchesOkLigaPrataFem();
       } catch (error) {
-        console.error('Error fetching matches from OkLigaOuroFem:', error);
-        ErrorDisplay.show('result', new APIError('OkLigaOuroFem', 'Failed to fetch matches', error));
-      }
-      try {
-        matches3 = await fetchMatchesOkLigaBronce();
-      } catch (error) {
-        console.error('Error fetching matches from OkLigaBronce:', error);
-        ErrorDisplay.show('result', new APIError('OkLigaBronce', 'Failed to fetch matches', error));
+        console.error('Error fetching matches from OkLigaPrataFem:', error);
+        ErrorDisplay.show('result', new APIError('OkLigaPrataFem', 'Failed to fetch matches', error));
       }
 
       const TEST = false;
