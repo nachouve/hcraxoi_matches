@@ -10,8 +10,9 @@ export const CATEGORY_ORDER = [
   "SUB 13", "SUB", "COPA", "OK LIGA OURO"];
 
 export const ligas = {
-        'OK LIGA OURO FEMENINA': 'https://www.server2.sidgad.es/rfep/rfep_cal_idc_2817_1.php',
-        'OK LIGA BRONCE NORTE': 'https://www.server2.sidgad.es/rfep/rfep_cal_idc_2823_1.php',
+        'OK LIGA PRATA FEMENINA': 'https://www.server2.sidgad.es/rfep/rfep_cal_idc_3155_1.php',
+        'OK LIGA OURO FEMENINA 2025': 'https://www.server2.sidgad.es/rfep/rfep_cal_idc_2817_1.php',
+        'OK LIGA BRONCE NORTE 2025': 'https://www.server2.sidgad.es/rfep/rfep_cal_idc_2823_1.php',
         'OK LIGA PLATA FEMENINA 2023': 'https://www.server2.sidgad.es/rfep/rfep_cal_idc_2097_1.php',
         'OK LIGA BRONCE NORTE 2023': 'https://www.server2.sidgad.es/rfep/rfep_cal_idc_2098_1.php'
       }
@@ -29,5 +30,6 @@ export const leagueColors = {
   'SUB17 FEMENINA': '#cb52ab',
   'OK LIGA BRONCE': '#0657C9',
   'OK LIGA PLATA': '#FF57AA',
+  'OK LIGA PRATA FEMENINA': '#EA03FF',
   'OK LIGA OURO FEMENINA': '#EA03FF'
 };
